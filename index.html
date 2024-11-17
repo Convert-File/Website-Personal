@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Multiple VCF Contacts</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #4CAF50, #1e90ff);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+
+        input[type="text"],
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="text"] {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #45a049, #3e8e41);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create VCF File</h1>
+        <input type="text" id="adminName" placeholder="Enter Admin Base Name (e.g., Admin)">
+        <input type="text" id="adminNumbers" placeholder="Enter Admin Phone Numbers (space-separated)">
+        <input type="text" id="clientName" placeholder="Enter Client Base Name (e.g., Client)">
+        <input type="text" id="clientNumbers" placeholder="Enter Client Phone Numbers (space-separated)">
+        <input type="text" id="fileName" placeholder="Enter File Name (default: contacts.vcf)">
+        <button onclick="generateVCF()">Create VCF</button>
+        <footer>&copy; 2024 VCF Generator</footer>
+    </div>
+
+    <script>
+        function generateVCF() {
+            const adminName = document.getElementById('adminName').value.trim();
+            const adminNumbersInput = document.getElementById('adminNumbers').value.trim();
+            const clientName = document.getElementById('clientName').value.trim();
+            const clientNumbersInput = document.getElementById('clientNumbers').value.trim();
+            const fileNameInput = document.getElementById('fileName').value.trim();
+            const fileName = fileNameInput || "contacts.vcf";
+
+            if (!adminName || !clientName || !adminNumbersInput || !clientNumbersInput) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const adminNumbers = adminNumbersInput.split(/\s+/); // Split by spaces
+            const clientNumbers = clientNumbersInput.split(/\s+/); // Split by spaces
+
+            if (adminNumbers.length + clientNumbers.length > 80) {
+                alert("A maximum of 80 contacts can be created at a time.");
+                return;
+            }
+
+            let vcfContent = '';
+
+            // Generate VCF content for Admins
+            adminNumbers.forEach((phone, index) => {
+                const contactName = `${adminName} ${index + 1}`;
+                vcfContent += `
+BEGIN:VCARD
+VERSION:3.0
+FN:${contactName}
+TEL:${phone}
+END:VCARD
+                `.trim() + '\n\n';
+            });
+
+            // Generate VCF content for Clients
+            clientNumbers.forEach((phone, index) => {
+                const contactName = `${clientName} ${index + 1}`;
+                vcfContent += `
+BEGIN:VCARD
+VERSION:3.0
+FN:${contactName}
+TEL:${phone}
+END:VCARD
+                `.trim() + '\n\n';
+            });
+
+            const blob = new Blob([vcfContent], { type: 'text/vcard' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
+    </script>
+</body>
+</html>
